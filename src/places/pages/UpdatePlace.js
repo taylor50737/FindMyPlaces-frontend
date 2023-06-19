@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import Input from "../../shared/components/FormElements/Input";
@@ -7,7 +7,7 @@ import {
   VALIDATOR_REQUIRE,
   VALIDATOR_MINLENGTH,
 } from "../../shared/util/validators";
-import { useForm } from '../../shared/hooks/form-hook'
+import { useForm } from "../../shared/hooks/form-hook";
 import "./PlaceForm.css";
 
 const DUMMY_PLACES = [
@@ -40,25 +40,46 @@ const DUMMY_PLACES = [
 ];
 
 const UpdatePlace = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const placeId = useParams().placeId;
+
+  const [formState, inputHandler, setFormData] = useForm(
+    {
+      title: {
+        value: "",
+        isValid: false,
+      },
+      description: {
+        value: "",
+        isValid: false,
+      },
+    },
+    false
+  );
 
   const identifiedPlace = DUMMY_PLACES.find((p) => p.id === placeId);
 
-  const [formState, inputHandler] = useForm({
-    title: {
-      value: identifiedPlace.title,
-      isValid: true
-    },
-    description: {
-      value: identifiedPlace.description,
-      isValid: true
-    }
-  }, true)
+  useEffect(() => {
+    setFormData(
+      {
+        title: {
+          value: identifiedPlace.title,
+          isValid: true,
+        },
+        description: {
+          value: identifiedPlace.description,
+          isValid: true,
+        },
+      },
+      true
+    );
+    setIsLoading(false);
+  }, [setFormData, identifiedPlace]);
 
-  const placeUpdateSubmitHandler = event => {
+  const placeUpdateSubmitHandler = (event) => {
     event.preventDefault();
     console.log(formState.inputs);
-  }
+  };
 
   if (!identifiedPlace) {
     return (
@@ -67,6 +88,15 @@ const UpdatePlace = () => {
       </div>
     );
   }
+
+  if (isLoading) {
+    return (
+      <div>
+        <h2>Loading...</h2>
+      </div>
+    );
+  }
+
   return (
     <form className="place-form" onSubmit={placeUpdateSubmitHandler}>
       <Input
