@@ -1,1 +1,1 @@
-# FavouritePlaces
+# FavouritePlaces (Frontend)
