@@ -1,25 +1,49 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import UsersList from "../components/UsersList";
+import ErrorModal from "../../shared/components/UIElements/ErrorModal";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 
 const Users = () => {
-  const USERS = [
-    {
-      id: "u1",
-      name: "Taylor",
-      image:
-        "https://i.etsystatic.com/25924315/r/il/b87247/4826173692/il_794xN.4826173692_e7xp.jpg",
-      places: 2,
-    },
-    {
-      id: "u2",
-      name: "Kuri",
-      image:
-        "https://www.thesprucepets.com/thmb/GEbKdMXYZLs4jIrdx2Xm9K0EK74=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/top-friendliest-dog-breeds-4691511_hero-5c6a918dcf56409c888d78b0fac82d18.jpg",
-      places: 1,
-    },
-  ];
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState();
+  const [loadedUsers, setLoadedUsers] = useState();
 
-  return <UsersList items={USERS} />;
+  useEffect(() => {
+    const sendRequest = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch("http://localhost:8080/api/users");
+        const responseData = await response.json();
+
+        if (!response.ok) {
+          throw new Error(responseData.message);
+        }
+
+        setLoadedUsers(responseData.users);
+        setIsLoading(false);
+      } catch (err) {
+        setIsLoading(false);
+        setError(err.message);
+      }
+    };
+    sendRequest();
+  }, []);
+
+  const errorHandler = () => {
+    setError(null);
+  };
+
+  return (
+    <>
+      <ErrorModal error={error} onClear={errorHandler} />
+      {isLoading && (
+        <div className="center">
+          <LoadingSpinner />
+        </div>
+      )}
+      {!isLoading && loadedUsers && <UsersList items={loadedUsers} />}
+    </>
+  );
 };
 
 export default Users;
