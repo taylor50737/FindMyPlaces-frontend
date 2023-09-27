@@ -1,1 +1,1 @@
-# FavouritePlaces (Frontend)
+# FindMyPlace (Frontend)
